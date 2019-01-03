@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import TableRow from './client_table.component';
+import '../../App.css';
 
 export default class Index extends Component {
   constructor(props) {
       super(props);
       this.onSearchChange = this.onSearchChange.bind(this);
+      this.onClearQuery = this.onClearQuery.bind(this);
       this.state = {
         clients: [],
         query:''
@@ -21,28 +23,45 @@ export default class Index extends Component {
       })
   }
 
-  onSearchChange(query){ 
-   
+  onSearchChange(query){
+    this.setState({query});
+    // console.log(this.state.query)
+    query !== "" ? this.onSearchQuery(query) : this.onClearQuery();
   }
 
-    clientTableRow(){
-      return this.state.clients.map(function(object, i){
-          return <TableRow obj={object} key={i} />;
-      });
-    }
+  onSearchQuery(query) {
+    // console.log(query);
+    axios.get('http://localhost:4000/client/search/'+query).then(response => {console.log(response)});
+    // axios.get('http://localhost:4000/client/search/'+this.props.match.params.query).then(response => {console.log(response)});
+  }
+
+  onClearQuery(){
+    this.setState({ query:''});
+  } 
+
+  clientTableRow(){
+    return this.state.clients.map(function(object, i){
+      return <TableRow obj={object} key={i} />;
+    });
+  }
 
     render() {
       return (
         <div>
           <h3 align="center">Active Clients</h3>
-          <form>
-            <input
-              placeholder="Search for..."
-              className="form-control" 
-              value={this.state.query}
-              onChange={this.onSearchChange}
-            />
-          </form>
+          <div className="search row">
+              <div className="form-group col-md-8">
+              <input
+                placeholder="Search for client..."
+                className="form-control" 
+                value={this.state.query}
+                onChange={event => this.onSearchChange(event.target.value)}
+              />
+              </div>
+               <div className="form-group col-md-4">
+              <button onClick={this.onClearQuery} className="btn btn-danger">Clear</button>
+              </div>
+          </div>
           <table className="table table-striped" style={{ marginTop: 20 }}>
             <thead>
               <tr>

@@ -16,43 +16,31 @@ clientRoutes.route('/add').post(function (req, res) {
     });
 });
 
-// Defined get client data(index or listing) route
+// Defined get all client data(index or listing) route
+// clientRoutes.route('/').get(function (req, res) {
+//   Client.find(function(err, clients){
+//     if(err){
+//       console.log(err);
+//     }
+//     else {
+//       res.json(clients);
+//     }
+//   });
+// });
+
+
+// Defined get all active client data(index or listing) route
 clientRoutes.route('/').get(function (req, res) {
-  Client.find(function(err, clients){
+  Client.find({client_active:true}).exec(function(err,clients) {
     if(err){
-      console.log(err);
+      console.log(err)
     }
     else {
       res.json(clients);
     }
-  });
+  })    
 });
-
-//------- Dont work ---------------
-
-// clientRoutes.route('/').get(function (req, res) {
-//   Client.find({client_active:true}).then(function(err,clients) {
-//     if(err){
-//       console.log(err)
-//     }
-//     else {
-//       res.json(clients);
-//     }
-//   })    
-// });
-
-// clientRoutes.route('/').get(function (req, res) {
-//   Client.find({client_active:'true',function(err,clients) {
-//     if(err){
-//       console.log(err)
-//     }
-//     else {
-//       res.json(clients);
-//     }
-//   }})
-// });
    
-//-------------------------------------   
 
 // Defined client edit route
 clientRoutes.route('/edit/:id').get(function (req, res) {
@@ -115,12 +103,16 @@ clientRoutes.route('/notes_update/:id').post(function (req, res) {
 });
 
 // Defined search route
-clientRoutes.route('/search').get(function (req, res) {
-    Client.findByIdAndRemove({_id: req.params.id}, function(err, client){
-        if(err) res.json(err);
-        else res.json('Successfully removed');
-    });
-});
+clientRoutes.route('/search/:query').get(function (req, res) {
+      let query = req.params.query;
+      Client.find({$text: {$search: query}})
+        .exec(function(err, results){
+        res.send(JSON.stringify(results));
+        // console.log(JSON.stringify(results));
+      });
+    })      
+   
+
 
 
 // Defined delete | remove | destroy route
